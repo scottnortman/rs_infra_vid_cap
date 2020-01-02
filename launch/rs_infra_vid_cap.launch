@@ -1,0 +1,37 @@
+<!-- 
+	File:  	rs_infra_vid_cap.launch
+	Desc:	Launch file to spawn needed nodes for live video capture from an Intel Realsense
+			camera and record to a rosbag file
+	Date:	Jan 2020
+	Auth:	Scott Nortman, scott@mainstreamrobotics.com
+	Note:
+
+	Example Usage:
+
+	$ roslaunch rs_infra_vid_cap rs_infra_vid_cap.launch
+-->
+
+
+<launch>
+	<arg name="Realsense" value="true" />
+	<arg name="LiveVideo" value="true" />
+	<arg name="RosBagRecord" value="false" />
+
+	<group if="$(arg Realsense)" >
+		<include file="$(find realsense2_camera)/launch/rs_infra.launch" >
+			<arg name="infra_width" 		value="1280" />
+			<arg name="infra_height" 		value="720" />
+			<arg name="infra_fps" 			value="15" />
+			<arg name="enable_infra1"       value="true"/>
+  			<arg name="enable_infra2"       value="false"/>
+		</include>
+		<!-- Call bash script to set needed dynamic parameters; place in the 'scripts' folder -->
+		<node name="realsense_set" pkg="rs_infra_vid_cap" type="rs_infra_vid_cap.sh" required="false" />
+	</group>
+
+	<!-- Set up single image viewer -->
+	<group if="$(arg LiveVideo)" >
+		<node name="rs_infra1_view" pkg="rqt_image_view" type="rqt_image_view" args="/camera/infra1/image_rect_raw"/>
+	</group>
+
+</launch>
